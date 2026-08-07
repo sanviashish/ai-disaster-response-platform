@@ -1,67 +1,116 @@
 "use client";
 
 import {
-
-Search,
-
-Bell,
-
-UserCircle2,
-
+  Search,
+  Bell,
+  Moon,
+  Clock3,
+  CalendarDays,
+  ChevronDown,
 } from "lucide-react";
 
 export default function TopNavbar() {
+  return (
+    <header className="flex h-[92px] items-center justify-between border-b border-[#18263E] bg-[#030814] px-10">
 
-return (
+      {/* Search */}
 
-<header className="flex h-24 items-center justify-between border-b border-white/10 px-10">
+      <div className="relative w-[560px]">
 
-<div>
+        <Search
+          size={18}
+          className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-slate-500"
+        />
 
-<h2 className="text-3xl font-bold">
+        <input
+          type="text"
+          placeholder="Search incidents, teams, hospitals..."
+          className="h-[56px] w-full rounded-[24px] border border-[#243753] bg-[#071220] pl-16 pr-6 text-[16px] font-medium text-white placeholder:text-slate-500 outline-none transition-all duration-300 focus:border-[#1C7CFF] focus:shadow-[0_0_25px_rgba(28,124,255,.25)]"
+        />
 
-Emergency Operations Dashboard
+      </div>
 
-</h2>
+      {/* Right */}
 
-<p className="mt-1 text-slate-400">
+      <div className="flex items-center gap-5">
 
-Real-time AI Disaster Monitoring
+        {/* Time */}
 
-</p>
+        <div className="rounded-2xl border border-[#243753] bg-[#071220] px-5 py-3">
 
-</div>
+          <div className="flex items-center gap-2 text-white">
 
-<div className="flex items-center gap-5">
+            <Clock3 size={18} />
 
-<div className="glass flex items-center gap-3 rounded-full px-5 py-3">
+            <span className="text-xl font-semibold">
 
-<Search size={18} />
+              10:42 AM
 
-<input
-type="text"
-placeholder="Search..."
-className="bg-transparent outline-none placeholder:text-slate-500"
-/>
+            </span>
 
-</div>
+          </div>
 
-<button className="glass rounded-full p-3">
+          <div className="mt-1 flex items-center gap-2 text-sm text-slate-400">
 
-<Bell size={20} />
+            <CalendarDays size={15} />
 
-</button>
+            24 May 2025
 
-<button className="glass rounded-full p-3">
+          </div>
 
-<UserCircle2 size={22} />
+        </div>
 
-</button>
+        {/* Notification */}
 
-</div>
+        <button className="flex h-[56px] w-[56px] items-center justify-center rounded-2xl border border-[#243753] bg-[#071220] text-slate-300 transition-all duration-300 hover:border-[#1C7CFF] hover:text-white hover:shadow-[0_0_25px_rgba(28,124,255,.25)]">
 
-</header>
+          <Bell size={21} />
 
-);
+        </button>
 
+        {/* Theme */}
+
+        <button className="flex h-[56px] w-[56px] items-center justify-center rounded-2xl border border-[#243753] bg-[#071220] text-slate-300 transition-all duration-300 hover:border-[#1C7CFF] hover:text-white hover:shadow-[0_0_25px_rgba(28,124,255,.25)]">
+
+          <Moon size={21} />
+
+        </button>
+
+        {/* User */}
+
+        <button className="flex items-center gap-4 rounded-2xl border border-[#243753] bg-[#071220] px-5 py-2 transition-all duration-300 hover:border-[#1C7CFF] hover:shadow-[0_0_25px_rgba(28,124,255,.25)]">
+
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#20D2FF] to-[#2463FF] text-xl font-bold text-white shadow-[0_0_25px_rgba(28,124,255,.35)]">
+
+            S
+
+          </div>
+
+          <div className="text-left">
+
+            <p className="font-semibold text-white">
+
+              Sanvi
+
+            </p>
+
+            <p className="text-sm text-slate-400">
+
+              Mission Control
+
+            </p>
+
+          </div>
+
+          <ChevronDown
+            size={18}
+            className="text-slate-400"
+          />
+
+        </button>
+
+      </div>
+
+    </header>
+  );
 }

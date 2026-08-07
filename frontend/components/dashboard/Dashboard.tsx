@@ -1,27 +1,23 @@
-import GlobeMap from "../map/GlobeMap";
-import AICommander from "../ai/AICommander";
-import MetricSection from "../stats/MetricSection";
-import QuickActionSection from "../actions/QuickActionSection";
+import DashboardHeader from "./DashboardHeader";
+import HeroMap from "./HeroMap";
+import AICommander from "./AICommander";
+import StatsCards from "./StatsCards";
 
 export default function Dashboard() {
   return (
-    <div className="flex h-full flex-col gap-6">
+    <div className="space-y-7">
 
-      <div className="grid grid-cols-12 gap-6">
+      <DashboardHeader />
 
-        <div className="col-span-8">
-          <GlobeMap />
-        </div>
+      <div className="grid grid-cols-[1.9fr_0.7fr] gap-5">
 
-        <div className="col-span-4">
-          <AICommander />
-        </div>
+        <HeroMap />
+
+        <AICommander />
 
       </div>
 
-      <MetricSection />
-
-      <QuickActionSection />
+      <StatsCards />
 
     </div>
   );

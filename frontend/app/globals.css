@@ -67,3 +67,16 @@ button{
   background:#334155;
   border-radius:20px;
 }
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: slowSpin 80s linear infinite;
+}
