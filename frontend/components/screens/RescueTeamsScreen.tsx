@@ -1,8 +1,60 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  getTeams,
+  RescueTeam,
+} from "@/services/teams.service";
+
 export default function RescueTeamsScreen() {
+  const [teams, setTeams] = useState<RescueTeam[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadTeams() {
+    try {
+      setError("");
+
+      const data = await getTeams();
+
+      setTeams(data);
+    } catch (err) {
+      console.error("Failed to load rescue teams:", err);
+      setError("Unable to load rescue team data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadTeams();
+  }, []);
+
+  const availableTeams = teams.filter(
+    (team) => team.status.toLowerCase() === "available"
+  ).length;
+
+  const teamsOnMission = teams.filter(
+    (team) => team.status.toLowerCase() === "on mission"
+  ).length;
+
+  const totalMembers = teams.reduce(
+    (total, team) => total + team.members,
+    0
+  );
+
+  if (loading) {
+    return (
+      <div className="text-white">
+        Loading rescue teams...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
 
-      {/* Header */}
+      {/* ================= HEADER ================= */}
 
       <div className="flex items-center justify-between">
 
@@ -22,7 +74,51 @@ export default function RescueTeamsScreen() {
 
       </div>
 
-      {/* Search */}
+      {/* ================= ERROR ================= */}
+
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* ================= SUMMARY ================= */}
+
+      <div className="grid grid-cols-3 gap-5">
+
+        <div className="rounded-2xl bg-[#0b1628] p-5">
+          <p className="text-slate-400">
+            Total Teams
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-white">
+            {teams.length}
+          </h2>
+        </div>
+
+        <div className="rounded-2xl bg-[#0b1628] p-5">
+          <p className="text-slate-400">
+            Available Teams
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-green-400">
+            {availableTeams}
+          </h2>
+        </div>
+
+        <div className="rounded-2xl bg-[#0b1628] p-5">
+          <p className="text-slate-400">
+            Members on Teams
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-blue-400">
+            {totalMembers}
+          </h2>
+        </div>
+
+      </div>
+
+      {/* ================= SEARCH ================= */}
 
       <div className="flex gap-4">
 
@@ -38,113 +134,94 @@ export default function RescueTeamsScreen() {
 
       </div>
 
-      {/* Team Cards */}
+      {/* ================= TEAM CARDS ================= */}
 
-      <div className="grid grid-cols-3 gap-6">
+      {teams.length === 0 ? (
+        <div className="rounded-2xl bg-[#0b1628] p-6 text-slate-400">
+          No rescue teams found.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-        {/* Team Alpha */}
+          {teams.map((team) => {
 
-        <div className="rounded-2xl border border-green-500/20 bg-[#0b1628] p-6">
+            const status = team.status.toLowerCase();
 
-          <div className="flex items-center justify-between">
+            const isAvailable = status === "available";
+            const isMission = status === "on mission";
 
-            <h2 className="text-2xl font-bold text-white">
-              Team Alpha
-            </h2>
+            const borderColor = isAvailable
+              ? "border-green-500/20"
+              : isMission
+              ? "border-yellow-500/20"
+              : "border-red-500/20";
 
-            <span className="rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-400">
-              Available
-            </span>
+            const statusColor = isAvailable
+              ? "bg-green-500/20 text-green-400"
+              : isMission
+              ? "bg-yellow-500/20 text-yellow-400"
+              : "bg-red-500/20 text-red-400";
 
-          </div>
+            return (
+              <div
+                key={team.id}
+                className={`rounded-2xl border ${borderColor} bg-[#0b1628] p-6`}
+              >
 
-          <div className="mt-5 space-y-2 text-slate-400">
+                {/* Team Header */}
 
-            <p>📍 Bhubaneswar</p>
+                <div className="flex items-center justify-between">
 
-            <p>👥 6 Members</p>
+                  <h2 className="text-2xl font-bold text-white">
+                    {team.team}
+                  </h2>
 
-            <p>🚑 Vehicle Ready</p>
+                  <span
+                    className={`rounded-full px-3 py-1 text-sm ${statusColor}`}
+                  >
+                    {team.status}
+                  </span>
 
-            <p>⛽ Fuel: 82%</p>
+                </div>
 
-          </div>
+                {/* Team Information */}
 
-          <button className="mt-6 w-full rounded-xl bg-blue-600 py-3 text-white hover:bg-blue-700">
-            Assign Mission
-          </button>
+                <div className="mt-5 space-y-3 text-slate-400">
+
+                  <p>
+                    📍 {team.location}
+                  </p>
+
+                  <p>
+                    👥 {team.members} Members
+                  </p>
+
+                  <p>
+                    🚨 Status: {team.status}
+                  </p>
+
+                </div>
+
+                {/* Action */}
+
+                <button
+                  className={
+                    isAvailable
+                      ? "mt-6 w-full rounded-xl bg-blue-600 py-3 text-white hover:bg-blue-700"
+                      : "mt-6 w-full rounded-xl border border-white/10 py-3 text-slate-300 hover:bg-white/5"
+                  }
+                >
+                  {isAvailable
+                    ? "Assign Mission"
+                    : "View Mission"}
+                </button>
+
+              </div>
+            );
+          })}
 
         </div>
-
-        {/* Team Bravo */}
-
-        <div className="rounded-2xl border border-yellow-500/20 bg-[#0b1628] p-6">
-
-          <div className="flex items-center justify-between">
-
-            <h2 className="text-2xl font-bold text-white">
-              Team Bravo
-            </h2>
-
-            <span className="rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400">
-              On Mission
-            </span>
-
-          </div>
-
-          <div className="mt-5 space-y-2 text-slate-400">
-
-            <p>📍 Cuttack</p>
-
-            <p>👥 5 Members</p>
-
-            <p>🚑 Vehicle Active</p>
-
-            <p>⛽ Fuel: 64%</p>
-
-          </div>
-
-          <button className="mt-6 w-full rounded-xl bg-yellow-600 py-3 text-white">
-            View Mission
-          </button>
-
-        </div>
-
-        {/* Team Charlie */}
-
-        <div className="rounded-2xl border border-red-500/20 bg-[#0b1628] p-6">
-
-          <div className="flex items-center justify-between">
-
-            <h2 className="text-2xl font-bold text-white">
-              Team Charlie
-            </h2>
-
-            <span className="rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-400">
-              Offline
-            </span>
-
-          </div>
-
-          <div className="mt-5 space-y-2 text-slate-400">
-
-            <p>📍 Puri</p>
-
-            <p>👥 4 Members</p>
-
-            <p>🚑 Vehicle Maintenance</p>
-
-            <p>⛽ Fuel: 18%</p>
-
-          </div>
-
-          <button className="mt-6 w-full rounded-xl bg-red-600 py-3 text-white">
-            Contact Team
-          </button>
-
-        </div>
-
-      </div>
+      )}
 
     </div>
   );

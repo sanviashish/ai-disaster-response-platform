@@ -1,8 +1,56 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  getHospitals,
+  Hospital,
+} from "@/services/hospital.service";
+
 export default function HospitalsScreen() {
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadHospitals() {
+    try {
+      setError("");
+
+      const data = await getHospitals();
+
+      setHospitals(data);
+    } catch (err) {
+      console.error("Failed to load hospitals:", err);
+      setError("Unable to load hospital data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadHospitals();
+  }, []);
+
+  const totalBeds = hospitals.reduce(
+    (total, hospital) => total + hospital.available_beds,
+    0
+  );
+
+  const hospitalsWithOxygen = hospitals.filter(
+    (hospital) => hospital.oxygen
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="text-white">
+        Loading hospitals...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
 
-      {/* Header */}
+      {/* ================= HEADER ================= */}
 
       <div className="flex items-center justify-between">
 
@@ -22,131 +70,151 @@ export default function HospitalsScreen() {
 
       </div>
 
-      {/* Summary Cards */}
+      {/* ================= ERROR ================= */}
 
-      <div className="grid grid-cols-4 gap-5">
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* ================= SUMMARY CARDS ================= */}
+
+      <div className="grid grid-cols-3 gap-5">
+
+        {/* Hospitals */}
 
         <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Hospitals</p>
-          <h2 className="mt-2 text-3xl font-bold text-white">28</h2>
+          <p className="text-slate-400">
+            Hospitals
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-white">
+            {hospitals.length}
+          </h2>
         </div>
 
-        <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Available Beds</p>
-          <h2 className="mt-2 text-3xl font-bold text-green-400">1,248</h2>
-        </div>
+        {/* Available Beds */}
 
         <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">ICU Beds</p>
-          <h2 className="mt-2 text-3xl font-bold text-red-400">182</h2>
+          <p className="text-slate-400">
+            Available Beds
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-green-400">
+            {totalBeds}
+          </h2>
         </div>
 
+        {/* Oxygen Availability */}
+
         <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Ambulances</p>
-          <h2 className="mt-2 text-3xl font-bold text-blue-400">74</h2>
+          <p className="text-slate-400">
+            Oxygen Available
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-blue-400">
+            {hospitalsWithOxygen}/{hospitals.length}
+          </h2>
         </div>
 
       </div>
 
-      {/* Hospital List */}
+      {/* ================= HOSPITAL LIST ================= */}
 
       <div className="space-y-5">
 
-        <div className="rounded-2xl bg-[#0b1628] p-6">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <h2 className="text-2xl font-bold text-white">
-                AIIMS Bhubaneswar
-              </h2>
-
-              <p className="mt-2 text-slate-400">
-                📍 Bhubaneswar
-              </p>
-
-            </div>
-
-            <span className="rounded-full bg-green-500/20 px-4 py-2 text-green-400">
-              Available
-            </span>
-
+        {hospitals.length === 0 ? (
+          <div className="rounded-2xl bg-[#0b1628] p-6 text-slate-400">
+            No hospitals found.
           </div>
+        ) : (
+          hospitals.map((hospital) => {
 
-          <div className="mt-5 grid grid-cols-4 gap-4 text-white">
+            const isAvailable = hospital.available_beds > 0;
 
-            <div>
-              <p className="text-slate-400">Beds</p>
-              <h3 className="text-xl font-bold">340</h3>
-            </div>
+            return (
+              <div
+                key={hospital.id}
+                className="rounded-2xl border border-white/10 bg-[#0b1628] p-6"
+              >
 
-            <div>
-              <p className="text-slate-400">ICU</p>
-              <h3 className="text-xl font-bold">42</h3>
-            </div>
+                {/* Hospital Header */}
 
-            <div>
-              <p className="text-slate-400">Doctors</p>
-              <h3 className="text-xl font-bold">215</h3>
-            </div>
+                <div className="flex items-center justify-between">
 
-            <div>
-              <p className="text-slate-400">Ambulances</p>
-              <h3 className="text-xl font-bold">14</h3>
-            </div>
+                  <div>
 
-          </div>
+                    <h2 className="text-2xl font-bold text-white">
+                      {hospital.name}
+                    </h2>
 
-        </div>
+                    <p className="mt-2 text-slate-400">
+                      📍 {hospital.location}
+                    </p>
 
-        <div className="rounded-2xl bg-[#0b1628] p-6">
+                  </div>
 
-          <div className="flex items-center justify-between">
+                  <span
+                    className={
+                      isAvailable
+                        ? "rounded-full bg-green-500/20 px-4 py-2 text-green-400"
+                        : "rounded-full bg-red-500/20 px-4 py-2 text-red-400"
+                    }
+                  >
+                    {isAvailable
+                      ? "Available"
+                      : "No Beds"}
+                  </span>
 
-            <div>
+                </div>
 
-              <h2 className="text-2xl font-bold text-white">
-                Capital Hospital
-              </h2>
+                {/* Hospital Stats */}
 
-              <p className="mt-2 text-slate-400">
-                📍 Bhubaneswar
-              </p>
+                <div className="mt-5 grid grid-cols-2 gap-4 text-white">
 
-            </div>
+                  {/* Beds */}
 
-            <span className="rounded-full bg-yellow-500/20 px-4 py-2 text-yellow-400">
-              Busy
-            </span>
+                  <div className="rounded-xl bg-white/5 p-4">
 
-          </div>
+                    <p className="text-slate-400">
+                      Available Beds
+                    </p>
 
-          <div className="mt-5 grid grid-cols-4 gap-4 text-white">
+                    <h3 className="mt-1 text-xl font-bold">
+                      {hospital.available_beds}
+                    </h3>
 
-            <div>
-              <p className="text-slate-400">Beds</p>
-              <h3 className="text-xl font-bold">182</h3>
-            </div>
+                  </div>
 
-            <div>
-              <p className="text-slate-400">ICU</p>
-              <h3 className="text-xl font-bold">26</h3>
-            </div>
+                  {/* Oxygen */}
 
-            <div>
-              <p className="text-slate-400">Doctors</p>
-              <h3 className="text-xl font-bold">124</h3>
-            </div>
+                  <div className="rounded-xl bg-white/5 p-4">
 
-            <div>
-              <p className="text-slate-400">Ambulances</p>
-              <h3 className="text-xl font-bold">8</h3>
-            </div>
+                    <p className="text-slate-400">
+                      Oxygen
+                    </p>
 
-          </div>
+                    <h3
+                      className={
+                        hospital.oxygen
+                          ? "mt-1 text-xl font-bold text-green-400"
+                          : "mt-1 text-xl font-bold text-red-400"
+                      }
+                    >
+                      {hospital.oxygen
+                        ? "Available"
+                        : "Unavailable"}
+                    </h3>
 
-        </div>
+                  </div>
+
+                </div>
+
+              </div>
+            );
+          })
+        )}
 
       </div>
 

@@ -1,3 +1,15 @@
+"use client";
+
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+
+const disasterIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
 export default function LiveMapScreen() {
   return (
     <div className="space-y-6">
@@ -48,23 +60,54 @@ export default function LiveMapScreen() {
 
       </div>
 
-      {/* Map Placeholder */}
+      {/* Interactive Map */}
 
-      <div className="flex h-[500px] items-center justify-center rounded-3xl border border-white/10 bg-[#0b1628]">
+      <div className="h-[550px] overflow-hidden rounded-3xl border border-white/10">
 
-        <div className="text-center">
+        <MapContainer
+          center={[20.5937, 78.9629]}
+          zoom={5}
+          scrollWheelZoom={true}
+          className="h-full w-full"
+        >
 
-          <div className="text-7xl">🌍</div>
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
-          <h2 className="mt-4 text-3xl font-bold text-white">
-            Interactive Disaster Map
-          </h2>
+          <Marker
+            position={[19.0760, 72.8777]}
+            icon={disasterIcon}
+          >
+            <Popup>
+              <strong>Mumbai Flood</strong>
+              <br />
+              Severity: High
+            </Popup>
+          </Marker>
 
-          <p className="mt-3 text-slate-400">
-            Live map will be integrated here.
-          </p>
+          <Marker
+            position={[28.6139, 77.2090]}
+            icon={disasterIcon}
+          >
+            <Popup>
+              <strong>Delhi Heatwave</strong>
+              <br />
+              Severity: Medium
+            </Popup>
+          </Marker>
 
-        </div>
+          <Marker
+            position={[22.5726, 88.3639]}
+            icon={disasterIcon}
+          >
+            <Popup>
+              <strong>Kolkata Cyclone Alert</strong>
+            </Popup>
+          </Marker>
+
+        </MapContainer>
 
       </div>
 

@@ -1,4 +1,43 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  getResources,
+  Resource,
+} from "@/services/resources.service";
+
 export default function ResourcesScreen() {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadResources() {
+    try {
+      setError("");
+
+      const data = await getResources();
+
+      setResources(data);
+    } catch (err) {
+      console.error("Failed to load resources:", err);
+      setError("Unable to load resource data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadResources();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-white">
+        Loading resources...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
 
@@ -22,29 +61,36 @@ export default function ResourcesScreen() {
 
       </div>
 
+      {/* Error */}
+
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+          {error}
+        </div>
+      )}
+
       {/* Summary Cards */}
 
       <div className="grid grid-cols-4 gap-5">
 
-        <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Food Kits</p>
-          <h2 className="mt-2 text-3xl font-bold text-white">2,480</h2>
-        </div>
+        {resources.slice(0, 4).map((resource) => (
+          <div
+            key={resource.id}
+            className="rounded-2xl bg-[#0b1628] p-5"
+          >
+            <p className="text-slate-400">
+              {resource.name}
+            </p>
 
-        <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Water Bottles</p>
-          <h2 className="mt-2 text-3xl font-bold text-white">12,340</h2>
-        </div>
+            <h2 className="mt-2 text-3xl font-bold text-white">
+              {resource.quantity.toLocaleString()}
+            </h2>
 
-        <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Medical Kits</p>
-          <h2 className="mt-2 text-3xl font-bold text-white">930</h2>
-        </div>
-
-        <div className="rounded-2xl bg-[#0b1628] p-5">
-          <p className="text-slate-400">Generators</p>
-          <h2 className="mt-2 text-3xl font-bold text-white">48</h2>
-        </div>
+            <p className="mt-1 text-sm text-slate-500">
+              {resource.unit}
+            </p>
+          </div>
+        ))}
 
       </div>
 
@@ -58,60 +104,61 @@ export default function ResourcesScreen() {
 
         <div className="space-y-6">
 
-          <div>
-            <div className="mb-2 flex justify-between text-white">
-              <span>🍞 Food Supplies</span>
-              <span>82%</span>
-            </div>
+          {resources.map((resource) => {
 
-            <div className="h-3 rounded-full bg-slate-700">
-              <div className="h-3 w-[82%] rounded-full bg-green-500"></div>
-            </div>
-          </div>
+            const percentage = Math.max(
+              0,
+              Math.min(100, resource.percentage)
+            );
 
-          <div>
-            <div className="mb-2 flex justify-between text-white">
-              <span>💧 Water</span>
-              <span>65%</span>
-            </div>
+            let progressColor = "bg-green-500";
 
-            <div className="h-3 rounded-full bg-slate-700">
-              <div className="h-3 w-[65%] rounded-full bg-blue-500"></div>
-            </div>
-          </div>
+            if (resource.status === "Critical") {
+              progressColor = "bg-red-500";
+            } else if (resource.status === "Low") {
+              progressColor = "bg-yellow-500";
+            } else if (resource.name === "Water") {
+              progressColor = "bg-blue-500";
+            } else if (resource.name === "Shelter Kits") {
+              progressColor = "bg-purple-500";
+            }
 
-          <div>
-            <div className="mb-2 flex justify-between text-white">
-              <span>💊 Medicines</span>
-              <span>39%</span>
-            </div>
+            return (
+              <div key={resource.id}>
 
-            <div className="h-3 rounded-full bg-slate-700">
-              <div className="h-3 w-[39%] rounded-full bg-yellow-500"></div>
-            </div>
-          </div>
+                <div className="mb-2 flex justify-between text-white">
 
-          <div>
-            <div className="mb-2 flex justify-between text-white">
-              <span>⛺ Shelter Kits</span>
-              <span>91%</span>
-            </div>
+                  <span>
+                    {resource.name}
+                  </span>
 
-            <div className="h-3 rounded-full bg-slate-700">
-              <div className="h-3 w-[91%] rounded-full bg-purple-500"></div>
-            </div>
-          </div>
+                  <span>
+                    {percentage}%
+                  </span>
 
-          <div>
-            <div className="mb-2 flex justify-between text-white">
-              <span>🔋 Power Units</span>
-              <span>27%</span>
-            </div>
+                </div>
 
-            <div className="h-3 rounded-full bg-slate-700">
-              <div className="h-3 w-[27%] rounded-full bg-red-500"></div>
-            </div>
-          </div>
+                <div className="h-3 rounded-full bg-slate-700">
+
+                  <div
+                    className={`h-3 rounded-full ${progressColor}`}
+                    style={{
+                      width: `${percentage}%`,
+                    }}
+                  />
+
+                </div>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  {resource.quantity.toLocaleString()}{" "}
+                  {resource.unit}
+                  {" • "}
+                  {resource.status}
+                </p>
+
+              </div>
+            );
+          })}
 
         </div>
 

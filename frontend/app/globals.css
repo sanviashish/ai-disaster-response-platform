@@ -80,3 +80,9 @@ button{
 .animate-spin-slow {
   animation: slowSpin 80s linear infinite;
 }
+@import "leaflet/dist/leaflet.css";
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
