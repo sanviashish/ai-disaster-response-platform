@@ -1,14 +1,26 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
+import dynamic from "next/dynamic";
 
-const disasterIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+
+const Popup = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Popup),
+  { ssr: false }
+);
 
 export default function LiveMapScreen() {
   return (
@@ -72,14 +84,11 @@ export default function LiveMapScreen() {
         >
 
           <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
+            attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          <Marker
-            position={[19.0760, 72.8777]}
-            icon={disasterIcon}
-          >
+          <Marker position={[19.0760, 72.8777]}>
             <Popup>
               <strong>Mumbai Flood</strong>
               <br />
@@ -87,10 +96,7 @@ export default function LiveMapScreen() {
             </Popup>
           </Marker>
 
-          <Marker
-            position={[28.6139, 77.2090]}
-            icon={disasterIcon}
-          >
+          <Marker position={[28.6139, 77.2090]}>
             <Popup>
               <strong>Delhi Heatwave</strong>
               <br />
@@ -98,10 +104,7 @@ export default function LiveMapScreen() {
             </Popup>
           </Marker>
 
-          <Marker
-            position={[22.5726, 88.3639]}
-            icon={disasterIcon}
-          >
+          <Marker position={[22.5726, 88.3639]}>
             <Popup>
               <strong>Kolkata Cyclone Alert</strong>
             </Popup>
